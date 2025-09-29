@@ -1,8 +1,51 @@
 # MCP Filesystem Server
 
-A Model Context Protocol (MCP) server that provides secure filesystem access to Claude and other MCP clients.
+Simple Golang server for learning Model Context Protocol (MCP).
 
-## Pure Golang Version
+This server provides secure filesystem access to Claude and other MCP clients.
+
+Integrate it with Claude Code
+
+```bash
+{
+./build.sh
+DIR=$(pwd)
+claude mcp add-json access-fs '{"type":"stdio","command":"'$DIR'/mcp-filesystem-server","args":["-dir", "'$DIR'"]}' --scope user
+claude mcp add-json access-fs-sdk '{"type":"stdio","command":"'$DIR'/mcp-filesystem-server-mark3labs-mcp-go","args":["-dir", "'$DIR'"]}' --scope user
+}
+```
+
+let Claude Code to use the MCP server to list the file,
+
+```bash
+claude "use access-fs to list file in ."
+```
+
+The output will similar to
+
+```
+access-fs - list_directory (MCP)(path: ".")
+  ⎿  Directory contents:
+     .git/
+     .gitignore
+     … +9 lines (ctrl+r to expand)
+
+⏺ - .git/
+  - .gitignore
+  - README.md
+  - build.sh
+  - cmd/
+  - go.mod
+  - go.sum
+  - internal/
+  - mcp-filesystem-server
+  - mcp-filesystem-server-mark3labs-mcp-go
+  - test.sh
+```
+
+## Prompts and Cost for this MCP server
+
+### Pure Golang Version
 
 Prompt Claude Code
 
@@ -10,7 +53,7 @@ Prompt Claude Code
 Create an MCP server in Golang to give Claude access to files in specific directory. The MCP server can expose file system access through standardized tools.
 ```
 
-## mark3labs/mcp-go version and refactor
+### mark3labs/mcp-go version and refactor
 
 Prompt for `v2: sdk version`
 
@@ -26,7 +69,7 @@ Prompt for `works in any dir`: make mcp servers to works in any directories, not
 
 Prompt: update @test.sh to the latest version
 
-## Cost
+### Cost
 
 This learning mcp project costs $4.64.
 
