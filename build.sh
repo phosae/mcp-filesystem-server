@@ -15,19 +15,22 @@ go build -o mcp-filesystem-server ./cmd/mcp-filesystem-server
 echo "Building SDK implementation (mcp-filesystem-server-mark3labs-mcp-go)..."
 go build -o mcp-filesystem-server-mark3labs-mcp-go ./cmd/mcp-filesystem-server-mark3labs-mcp-go
 
-# Check if target directory exists
-TARGET_DIR="/Users/xu/Documents/mv"
-if [ ! -d "$TARGET_DIR" ]; then
-    echo "Warning: Target directory $TARGET_DIR does not exist."
-    echo "Creating directory..."
-    mkdir -p "$TARGET_DIR"
-fi
-
 echo "Both MCP Filesystem Servers built successfully:"
 echo "  - mcp-filesystem-server (raw implementation)"
 echo "  - mcp-filesystem-server-mark3labs-mcp-go (SDK implementation)"
-echo "Target directory: $TARGET_DIR"
 echo ""
-echo "To run servers:"
-echo "  Raw: ./mcp-filesystem-server"
-echo "  SDK: ./mcp-filesystem-server-mark3labs-mcp-go"
+echo "Usage:"
+echo "  Both servers accept a -dir argument to specify the base directory"
+echo ""
+echo "Examples:"
+echo "  # Use current directory as base"
+echo "  ./mcp-filesystem-server"
+echo "  ./mcp-filesystem-server-mark3labs-mcp-go"
+echo ""
+echo "  # Use specific directory as base"
+echo "  ./mcp-filesystem-server -dir /path/to/directory"
+echo "  ./mcp-filesystem-server-mark3labs-mcp-go -dir /path/to/directory"
+echo ""
+echo "  # Use relative directory"
+echo "  ./mcp-filesystem-server -dir ./my-files"
+echo "  ./mcp-filesystem-server-mark3labs-mcp-go -dir ./my-files"
