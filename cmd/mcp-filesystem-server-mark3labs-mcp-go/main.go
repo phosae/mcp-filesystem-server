@@ -2,39 +2,37 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+
+	"mcp-filesystem-server/internal/filesystem"
 )
 
-const BaseDir = "/Users/xu/mv"
-
-func validatePath(path string) (string, error) {
-	cleanPath := filepath.Clean(path)
-
-	if filepath.IsAbs(cleanPath) {
-		if !strings.HasPrefix(cleanPath, BaseDir) {
-			return "", fmt.Errorf("access denied: path outside allowed directory")
-		}
-		return cleanPath, nil
-	}
-
-	fullPath := filepath.Join(BaseDir, cleanPath)
-	cleanFullPath := filepath.Clean(fullPath)
-
-	if !strings.HasPrefix(cleanFullPath, BaseDir) {
-		return "", fmt.Errorf("access denied: path outside allowed directory")
-	}
-
-	return cleanFullPath, nil
-}
+var validator *filesystem.Validator
 
 func main() {
+	// Parse command line arguments
+	var baseDir string
+	flag.StringVar(&baseDir, "dir", ".", "Base directory for filesystem operations")
+	flag.Parse()
+
+	// Create validator with the specified directory
+	validator = filesystem.NewValidator(baseDir)
+
+	// Ensure the base directory exists
+	if err := os.MkdirAll(baseDir, 0755); err != nil {
+		log.Fatalf("Failed to create base directory %s: %v", baseDir, err)
+	}
+
+	log.Printf("MCP Filesystem Server (SDK) starting with base directory: %s", validator.GetBaseDir())
 	// Create a new MCP server using the mark3labs SDK
 	s := server.NewMCPServer(
 		"filesystem-mcp-server-mark3labs",
@@ -58,7 +56,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 
-		validPath, err := validatePath(path)
+		validPath, err := validator.ValidatePath(path)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
@@ -95,7 +93,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 
-		validPath, err := validatePath(path)
+		validPath, err := validator.ValidatePath(path)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
@@ -128,7 +126,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 
-		validPath, err := validatePath(path)
+		validPath, err := validator.ValidatePath(path)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
@@ -165,7 +163,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 
-		validPath, err := validatePath(path)
+		validPath, err := validator.ValidatePath(path)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
@@ -193,7 +191,7 @@ func main() {
 			return mcp.NewToolResultError(err.Error()), nil
 		}
 
-		validPath, err := validatePath(path)
+		validPath, err := validator.ValidatePath(path)
 		if err != nil {
 			return mcp.NewToolResultError(err.Error()), nil
 		}

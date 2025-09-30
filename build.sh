@@ -9,11 +9,11 @@ echo "Building MCP filesystem servers..."
 
 # Build the raw implementation
 echo "Building raw implementation (mcp-filesystem-server)..."
-go build -o mcp-filesystem-server main.go
+go build -o mcp-filesystem-server ./cmd/mcp-filesystem-server
 
 # Build the SDK implementation
 echo "Building SDK implementation (mcp-filesystem-server-mark3labs-mcp-go)..."
-go build -o mcp-filesystem-server-mark3labs-mcp-go main-mark3labs.go
+go build -o mcp-filesystem-server-mark3labs-mcp-go ./cmd/mcp-filesystem-server-mark3labs-mcp-go
 
 # Check if target directory exists
 TARGET_DIR="/Users/xu/Documents/mv"

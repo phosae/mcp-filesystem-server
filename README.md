@@ -16,4 +16,9 @@ Prompt Claude Code
 ```
 1. describe this project
 2. add one more command mcp-filesystem-server-mark3labs-mcp-go (the previous is mcp-filesystem-server), implement a new mcp server provides same abilities via sdk                             github.com/mark3labs/mcp-go
+3. rename run.sh to build.sh, use build.sh to build two binaries.
+```
+
+```
+1. separate the code of two binaries using Golang's classic cmd dir structure.
 ```

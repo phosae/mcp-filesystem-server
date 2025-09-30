@@ -1,6 +1,6 @@
-# Binaries
-mcp-filesystem-server
-mcp-filesystem-server-mark3labs-mcp-go
+# Binaries (in root only, not cmd/ subdirectories)
+/mcp-filesystem-server
+/mcp-filesystem-server-mark3labs-mcp-go
 
 # Go build artifacts
 *.exe

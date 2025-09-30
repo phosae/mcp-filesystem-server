@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -9,9 +10,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-)
 
-const BaseDir = "/Users/xu/mv"
+	"mcp-filesystem-server/internal/filesystem"
+)
 
 type JSONRPCRequest struct {
 	JSONRPC string      `json:"jsonrpc"`
@@ -105,7 +106,24 @@ type ToolContent struct {
 	Text string `json:"text"`
 }
 
+var validator *filesystem.Validator
+
 func main() {
+	// Parse command line arguments
+	var baseDir string
+	flag.StringVar(&baseDir, "dir", ".", "Base directory for filesystem operations")
+	flag.Parse()
+
+	// Create validator with the specified directory
+	validator = filesystem.NewValidator(baseDir)
+
+	// Ensure the base directory exists
+	if err := os.MkdirAll(baseDir, 0755); err != nil {
+		log.Fatalf("Failed to create base directory %s: %v", baseDir, err)
+	}
+
+	log.Printf("MCP Filesystem Server starting with base directory: %s", validator.GetBaseDir())
+
 	decoder := json.NewDecoder(os.Stdin)
 	encoder := json.NewEncoder(os.Stdout)
 
@@ -284,26 +302,6 @@ func handleToolCall(request JSONRPCRequest) *JSONRPCResponse {
 	}
 }
 
-func validatePath(path string) (string, error) {
-	cleanPath := filepath.Clean(path)
-
-	if filepath.IsAbs(cleanPath) {
-		if !strings.HasPrefix(cleanPath, BaseDir) {
-			return "", fmt.Errorf("access denied: path outside allowed directory")
-		}
-		return cleanPath, nil
-	}
-
-	fullPath := filepath.Join(BaseDir, cleanPath)
-	cleanFullPath := filepath.Clean(fullPath)
-
-	if !strings.HasPrefix(cleanFullPath, BaseDir) {
-		return "", fmt.Errorf("access denied: path outside allowed directory")
-	}
-
-	return cleanFullPath, nil
-}
-
 func handleReadFile(request JSONRPCRequest, params CallToolParams) *JSONRPCResponse {
 	path, exists := params.Arguments["path"].(string)
 	if !exists {
@@ -317,7 +315,7 @@ func handleReadFile(request JSONRPCRequest, params CallToolParams) *JSONRPCRespo
 		}
 	}
 
-	validPath, err := validatePath(path)
+	validPath, err := validator.ValidatePath(path)
 	if err != nil {
 		return &JSONRPCResponse{
 			JSONRPC: "2.0",
@@ -372,7 +370,7 @@ func handleWriteFile(request JSONRPCRequest, params CallToolParams) *JSONRPCResp
 		}
 	}
 
-	validPath, err := validatePath(path)
+	validPath, err := validator.ValidatePath(path)
 	if err != nil {
 		return &JSONRPCResponse{
 			JSONRPC: "2.0",
@@ -437,7 +435,7 @@ func handleListDirectory(request JSONRPCRequest, params CallToolParams) *JSONRPC
 		}
 	}
 
-	validPath, err := validatePath(path)
+	validPath, err := validator.ValidatePath(path)
 	if err != nil {
 		return &JSONRPCResponse{
 			JSONRPC: "2.0",
@@ -499,7 +497,7 @@ func handleCreateDirectory(request JSONRPCRequest, params CallToolParams) *JSONR
 		}
 	}
 
-	validPath, err := validatePath(path)
+	validPath, err := validator.ValidatePath(path)
 	if err != nil {
 		return &JSONRPCResponse{
 			JSONRPC: "2.0",
@@ -552,7 +550,7 @@ func handleDeleteFile(request JSONRPCRequest, params CallToolParams) *JSONRPCRes
 		}
 	}
 
-	validPath, err := validatePath(path)
+	validPath, err := validator.ValidatePath(path)
 	if err != nil {
 		return &JSONRPCResponse{
 			JSONRPC: "2.0",
